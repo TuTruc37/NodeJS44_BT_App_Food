@@ -266,8 +266,8 @@ LIMIT 1
 
 SELECT u.user_id, u.full_name
 FROM users u
-LEFT JOIN orders o ON u.user_id = o.user_id
-LEFT JOIN like_res lr ON u.user_id = lr.user_id
-LEFT JOIN rate_res rr ON u.user_id = rr.user_id
+LEFT JOIN orders as o ON u.user_id = o.user_id
+LEFT JOIN like_res as lr ON u.user_id = lr.user_id
+LEFT JOIN rate_res as rr ON u.user_id = rr.user_id
 WHERE o.user_id IS NULL AND lr.user_id IS NULL AND rr.user_id IS NULL;
 
