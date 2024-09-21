@@ -1,18 +1,25 @@
-
-
 // B1: import lib express
 import express from "express";
 // import pool from "./db.js";
 // import { OK, INTERNAL_SERVER } from "./const.js";
 import rootRoutes from "./src/routes/root.router.js";
-
+import cors from "cors";
 // B2: tạo object express
 const app = express();
 
 // thêm middleware để đọc data json
+
+// đảm bảo cors được bật trước khi chạy xuống rootRoutes
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "HEAD", "OPTIONS", "POST"],
+  })
+);
+
+// đảm bảo chạy trước khi chạy xuống rootRoutes để các dữ liệu ở body được chuyển từ JSON sang đối tượng JS
 app.use(express.json());
 
-// import rootRoutes
 app.use(rootRoutes);
 
 // B3: define port cho BE chạy

@@ -1,30 +1,34 @@
 import _sequelize from 'sequelize';
 const { Model, Sequelize } = _sequelize;
 
-export default class restaurant extends Model {
+export default class chat extends Model {
   static init(sequelize, DataTypes) {
   return super.init({
-    res_id: {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    res_name: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    image: {
-      type: DataTypes.TEXT,
+    user_id: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    description: {
-      type: DataTypes.TEXT,
+    content: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    room_id: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    date: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'restaurant',
+    tableName: 'chat',
     timestamps: false,
     indexes: [
       {
@@ -32,7 +36,7 @@ export default class restaurant extends Model {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "res_id" },
+          { name: "id" },
         ]
       },
     ]

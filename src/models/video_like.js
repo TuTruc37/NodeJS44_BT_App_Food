@@ -1,10 +1,10 @@
 import _sequelize from 'sequelize';
 const { Model, Sequelize } = _sequelize;
 
-export default class rate_res extends Model {
+export default class video_like extends Model {
   static init(sequelize, DataTypes) {
   return super.init({
-    rate_res_id: {
+    like_id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -18,25 +18,25 @@ export default class rate_res extends Model {
         key: 'user_id'
       }
     },
-    res_id: {
+    video_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'restaurant',
-        key: 'res_id'
+        model: 'video',
+        key: 'video_id'
       }
     },
-    amount: {
-      type: DataTypes.INTEGER,
+    date_create: {
+      type: DataTypes.DATE,
       allowNull: true
     },
-    date_rate: {
-      type: DataTypes.DATE,
+    dis_like: {
+      type: DataTypes.BOOLEAN,
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'rate_res',
+    tableName: 'video_like',
     timestamps: false,
     indexes: [
       {
@@ -44,7 +44,7 @@ export default class rate_res extends Model {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "rate_res_id" },
+          { name: "like_id" },
         ]
       },
       {
@@ -55,10 +55,10 @@ export default class rate_res extends Model {
         ]
       },
       {
-        name: "res_id",
+        name: "video_id",
         using: "BTREE",
         fields: [
-          { name: "res_id" },
+          { name: "video_id" },
         ]
       },
     ]
