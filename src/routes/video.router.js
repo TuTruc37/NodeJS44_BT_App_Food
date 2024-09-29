@@ -1,6 +1,16 @@
 import express from "express";
-import { getListVideo } from "./video.controller.js";
-const videoRouter = express.Router();
-videoRouter.get('/get-videos',getListVideo)
+import {
+  getListVideo,
+  getListVideoType,
+  getType,
+  getVideoPage,
+} from "../controllers/video.controller.js";
+import { middlewareToken } from "../config/jwt.js";
 
-export default videoRouter;
+const videoRoutes = express.Router();
+videoRoutes.get("/get-videos", getListVideo);
+videoRoutes.get("/get-type", middlewareToken, getType);
+videoRoutes.get("/get-video-type-by-id/:typeId", getListVideoType);
+videoRoutes.get("/get-video-page/:page/:size", getVideoPage);
+
+export default videoRoutes;
