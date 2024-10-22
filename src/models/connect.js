@@ -7,7 +7,7 @@ const sequelize = new Sequelize(
   {
     host: configDb.host, //địa chỉ host của Mysql dưới local
     port: configDb.port, //port của mysql
-    dialect: configDb.dialect, //dialect để kết nối với database
+    dialect: "mysql", //dialect để kết nối với database
   }
 );
 
