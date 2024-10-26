@@ -11,8 +11,13 @@ import {
   createTokenAsyncKey,
   verifyTokenAsyncKey,
 } from "../config/jwt.js";
+import { PrismaClient } from "@prisma/client";
+import speakeasy from "speakeasy"; // lib tạo secret key
 
 const model = initModels(sequelize);
+
+const prisma = new PrismaClient();
+
 const register = async (req, res, next) => {
   try {
     /**
@@ -25,12 +30,17 @@ const register = async (req, res, next) => {
      *    - nếu tồn tại: trả lỗi "Tài khoản đã tồn tại"
      *    - nếu chưa tồn tại: đi tiêp
      */
-    const userExist = await model.users.findOne({
-      where: {
-        email: email,
-      },
+    // const userExist = await model.users.findOne({
+    //   where: {
+    //     email: email,
+    //   },
+    // });
+    const userExist = await prisma.users.findFirst({
+      where: { email },
     });
-    console.log({ userExist });
+
+    console.log("userExist", userExist);
+
     if (userExist) {
       return res.status(400).json({
         message: `Tài khoản đã tồn tại`,
@@ -40,14 +50,32 @@ const register = async (req, res, next) => {
     /**
      * mã hoá pass
      */
+    const hashedPass = bcrypt.hashSync(pass, 10);
     /**
      * Bước 3: thêm người dùng mới vào db
      */
-    const userNew = await model.users.create({
-      full_name: fullName,
-      email: email,
-      pass_word: bcrypt.hashSync(pass, 10),
+    // const userNew = await model.users.create({
+    //   full_name: fullName,
+    //   email: email,
+    //   pass_word: hashedPass,
+    // });
+    // tạo secret cho login 2 lớp
+    const secret = speakeasy.generateSecret({ length: 15 });
+    console.log("secret: ", secret.base32);
+    const userNew = await prisma.users.create({
+      data: {
+        full_name: fullName,
+        email,
+        pass_word: hashedPass,
+        secret: secret.base32,
+      },
     });
+
+    // const userNew = await model.users.create({
+    //   full_name: fullName,
+    //   email: email,
+    //   pass_word: bcrypt.hashSync(pass, 10),
+    // });
 
     //   cấu hình info email
     const mailOption = {
