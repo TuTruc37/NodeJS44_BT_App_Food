@@ -8,6 +8,9 @@ import cookieParser from "cookie-parser";
 // B2: tạo object express
 const app = express();
 
+// define middleware để public , folder public ; test trên google: http://localhost:8080/public/imgs/1730097071098_cat.jpg
+app.use(express.static("."));
+
 // thêm middleware để đọc data json
 
 // đảm bảo cors được bật trước khi chạy xuống rootRoutes
