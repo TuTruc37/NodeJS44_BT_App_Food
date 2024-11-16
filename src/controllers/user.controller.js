@@ -48,27 +48,43 @@ const getUser = async (req, res) => {
     // let full_name = req.query.full_name || '';
     // console.log("get full_name: ", full_name)
     let { full_name = "" } = req.query;
-    let data = await model.users.findAll({
+    // let data = await model.users.findAll({
+    //   where: {
+    //     full_name: {
+    //       [Op.like]: `%${full_name}%`,
+    //     },
+    //   },
+
+    // attributes: ["full_name"],
+    // include: [
+    //   {
+    //     model: model.video, // chọn model mà muốn kết bảng
+    //     as: "videos",
+    //     attributes: ["video_name", "user_id"], // chỉ định những column nào sẽ hiển thị
+    //     required: true, // default sẽ kết bảng theo left join, muôn inner join thì required: true
+    //     include: [
+    //       {
+    //         model: model.video_comment,
+    //         as: "video_comments",
+    //       },
+    //     ],
+    //   },
+    // ],
+    const data = await prisma.users.findMany({
       where: {
         full_name: {
-          [Op.like]: `%${full_name}%`,
+          contains: full_name,
         },
       },
-      attributes: ["full_name"],
-      include: [
-        {
-          model: model.video, // chọn model mà muốn kết bảng
-          as: "videos",
-          attributes: ["video_name", "user_id"], // chỉ định những column nào sẽ hiển thị
-          required: true, // default sẽ kết bảng theo left join, muôn inner join thì required: true
-          include: [
-            {
-              model: model.video_comment,
-              as: "video_comments",
-            },
-          ],
+      include: {
+        video: {
+          select: {
+            user_id: true,
+            video_name: true,
+            video_comment: true,
+          },
         },
-      ],
+      },
     });
     return res.status(OK).json(data);
   } catch (error) {
@@ -154,7 +170,7 @@ const uploadAvatar = async (req, res) => {
 
     await prisma.users.update({
       data: { avatar: avatarPath },
-      where: { user_id: Number(userId) },//phải ép kiểu về đúng datatype của column
+      where: { user_id: Number(userId) }, //phải ép kiểu về đúng datatype của column
     });
     return res
       .status(200)

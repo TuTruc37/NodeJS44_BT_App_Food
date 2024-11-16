@@ -33,7 +33,7 @@ INSERT INTO users (full_name, email, pass_word) VALUES
 ('Mia Scott', 'mia.scott@example.com', 'mia_pass@!'),
 ('William Green', 'william.green@example.com', 'green1234'),
 ('Ava Adams', 'ava.adams@example.com', 'adams7890');
-
+-- cái sql này là sql bài cũ để nộp bài ạ, không phải sql youtube em làm chung thôi ạ
 -- table restaurant
 create table restaurant(
 	res_id INT PRIMARY KEY AUTO_INCREMENT,
