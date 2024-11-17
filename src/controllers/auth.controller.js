@@ -216,6 +216,91 @@ const extendToken = async (req, res) => {
   return res.status(200).json({ message: "Success", data: newToken });
 };
 
+// const loginAsyncKey = async (req, res) => {
+//   try {
+//     // B1: lấy email và pass_word từ body request
+//     // B2: check user thông qua email (get user từ db)
+//     //   B2.1: nếu không có user => ra error user not found
+//     //   B2.2: nếu có user => check tiếp pass_word
+//     //      B2.2.1: nếu password ko trùng nhau => ra error password is wrong
+//     //      B2.2.2: nếu password trùng nhau => tạo access token
+//     let { email, pass_word, code } = req.body; // code được lấy từ authenticator
+
+//     // let user = await model.users.findOne({
+//     //   where: {
+//     //     email,
+//     //   },
+//     // });
+//     let user = await prisma.users.findFirst({
+//       where: {
+//         email,
+//       },
+//     });
+//     if (!user) {
+//       return res.status(400).json({ message: "Email is wrong" });
+//     }
+
+//     let checkPass = bcrypt.compareSync(pass_word, user.pass_word);
+//     if (!checkPass) {
+//       return res.status(400).json({ message: "Password is wrong" });
+//     }
+
+//     // check code được nhập từ request:
+//     const verified = speakeasy.totp.verify({
+//       secret: user.secret,
+//       encoding: "base32", //tạo mã qr code ở front-end const otpauth
+//       token: code, // lấy từ google authenticator
+//     });
+//     if (!verified) {
+//       return res.status(400).json({ message: `Invalid 2FA` });
+//     }
+
+//     let payload = {
+//       userId: user.user_id,
+//     };
+
+//     // tạo token
+//     // function sign của jwt
+//     // param 1: tạo payload và lưu vào token
+//     // param 2: key để tạo token
+//     // param 3: setting lifetime của token và thuật toán để tạo token
+//     let accessToken = createTokenAsyncKey({ userId: user.user_id });
+//     // create refresh token và lưu vào database
+//     let refreshToken = createRefTokenAsyncKey({ userId: user.user_id });
+//     // await model.users.update(
+//     //   {
+//     //     refresh_token: refreshToken,
+//     //   },
+//     //   {
+//     //     where: { user_id: user.user_id },
+//     //   }
+//     // );
+//     await prisma.users.update({
+//       data: {
+//         refresh_token: refreshToken,
+//       },
+//       where: {
+//         user_id: user.user_id,
+//       },
+//     });
+//     // lưu refresh token vào cookie
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true, // Cookie không thể truy cập từ javascript
+//       secure: false, // để chạy dưới localhost
+//       sameSite: "Lax", // để đảm bảo cookie được gửi trong các domain khác nhau
+//       maxAge: 7 * 24 * 60 * 60 * 1000, //thời gian tồn tại cookie trong browser
+//     });
+
+//     return res.status(200).json({
+//       message: "Login successfully",
+//       data: accessToken,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({ message: "error" });
+//   }
+// };
+
 const loginAsyncKey = async (req, res) => {
   try {
     // B1: lấy email và pass_word từ body request
@@ -226,11 +311,6 @@ const loginAsyncKey = async (req, res) => {
     //      B2.2.2: nếu password trùng nhau => tạo access token
     let { email, pass_word, code } = req.body; // code được lấy từ authenticator
 
-    // let user = await model.users.findOne({
-    //   where: {
-    //     email,
-    //   },
-    // });
     let user = await prisma.users.findFirst({
       where: {
         email,
@@ -247,10 +327,13 @@ const loginAsyncKey = async (req, res) => {
 
     // check code được nhập từ request:
     const verified = speakeasy.totp.verify({
-      secret: user.secret,
+      secret: user.secret, // Sửa tên cột secret thành authentication_secret
       encoding: "base32", //tạo mã qr code ở front-end const otpauth
       token: code, // lấy từ google authenticator
     });
+
+    console.log("verified", verified);
+
     if (!verified) {
       return res.status(400).json({ message: `Invalid 2FA` });
     }
@@ -267,15 +350,15 @@ const loginAsyncKey = async (req, res) => {
     let accessToken = createTokenAsyncKey({ userId: user.user_id });
     // create refresh token và lưu vào database
     let refreshToken = createRefTokenAsyncKey({ userId: user.user_id });
-    await model.users.update(
-      {
+
+    await prisma.users.update({
+      data: {
         refresh_token: refreshToken,
       },
-      {
-        where: { user_id: user.user_id },
-      }
-    );
-
+      where: {
+        user_id: user.user_id,
+      },
+    });
     // lưu refresh token vào cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true, // Cookie không thể truy cập từ javascript
@@ -293,7 +376,6 @@ const loginAsyncKey = async (req, res) => {
     return res.status(500).json({ message: "error" });
   }
 };
-
 const verifyAccessTokenAsyncKey = (req, res) => {
   let { token } = req.headers;
   let checkToken = verifyTokenAsyncKey(token);
