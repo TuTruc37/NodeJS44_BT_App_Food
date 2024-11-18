@@ -7,7 +7,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io"; //lib socket.io dùng để tạo Server chat realtime
 import { createServer } from "http"; // socket.io
-
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 // B2: tạo object express
 const app = express();
 
@@ -62,6 +63,18 @@ io.on("connection", (socket) => {
     number = number - 1;
     // server bắn event cho tất cả client
     io.emit("send-new-number", number);
+  });
+  // nhận event send-mess
+  socket.on("send-mess", async ({ user_id, content }) => {
+    let newChat = {
+      user_id,
+      content,
+      date: new Date(),
+    };
+    // lưu chat vào database (db)
+    await prisma.chat.create({ data: newChat });
+    // server bắn event cho tất cả client
+    io.emit("sv-send-mess", { user_id, content });
   });
 });
 
